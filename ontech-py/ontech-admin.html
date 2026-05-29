@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OnTech PY – Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --blue:#1A3A5C; --blue-light:#1E4470; --blue-dark:#0F2340; --black:#090E15; --black-edge:#141B26; --white:#FFF; --red:#E01020; --gray:#111826; --gray2:#1A2535; --gray3:#6B82A0; --accent:#7EB8F7; }
+  .logo-r { color: #E01020 !important; }
+  .logo-w { color: #FFFFFF !important; }
+  .logo-b { color: #7EB8F7 !important; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--black); color: var(--white); min-height: 100vh; }
+
+  /* LOGIN */
+  #login-screen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+  }
+  .login-box {
+    background: var(--gray); border: 1px solid #1A2535; border-radius: 28px;
+    padding: 3rem 2.5rem; width: 100%; max-width: 400px; text-align: center;
+  }
+  .login-logo { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; margin-bottom: 0.3rem; }
+  
+  .login-badge {
+    display: inline-block; background: rgba(26,58,92,0.3); border: 1px solid rgba(30,68,112,0.6);
+    color: var(--accent); padding: 0.25rem 0.8rem; border-radius: 50px;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2rem;
+  }
+  .login-box h2 { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .login-box p { color: var(--gray3); font-size: 0.88rem; margin-bottom: 2rem; }
+  .login-field { margin-bottom: 1rem; text-align: left; }
+  .login-field label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--gray3); margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .login-field input {
+    width: 100%; background: var(--black); border: 1px solid #333;
+    border-radius: 12px; padding: 0.75rem 1rem; color: var(--white);
+    font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.2s;
+  }
+  .login-field input:focus { border-color: var(--accent); }
+  .login-btn {
+    width: 100%; background: #1E6FBF; color: var(--white); border: none; border-radius: 50px;
+    padding: 0.9rem; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 1rem;
+    cursor: pointer; transition: background 0.2s; margin-top: 0.5rem;
+  }
+  .login-btn:hover { background: #1A5EA0; }
+  .login-error { color: var(--red); font-size: 0.82rem; margin-top: 0.75rem; display: none; }
+
+  /* DASHBOARD */
+  #dashboard { display: none; }
+  #dashboard.visible { display: block; }
+
+  .dash-nav {
+    background: rgba(9,14,21,0.97); border-bottom: 1px solid #1A2535;
+    padding: 1rem 5%; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .dash-logo { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; }
+  
+  .dash-logo small { font-size: 0.65rem; font-weight: 600; color: var(--gray3); letter-spacing: 1px; text-transform: uppercase; vertical-align: middle; margin-left: 8px; }
+  .dash-logout {
+    background: transparent; border: 1px solid #333; color: var(--gray3);
+    padding: 0.45rem 1rem; border-radius: 50px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.82rem; transition: border-color 0.2s, color 0.2s;
+  }
+  .dash-logout:hover { border-color: var(--red); color: var(--red); }
+
+  .dash-body { padding: 2.5rem 5%; max-width: 1100px; margin: 0 auto; }
+
+  /* STATS */
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
+  .stat-card {
+    background: var(--gray); border: 1px solid #1A2535; border-radius: 20px; padding: 1.5rem;
+    text-align: center;
+  }
+  .stat-card .num { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--accent); line-height: 1; }
+  .stat-card .lbl { color: var(--gray3); font-size: 0.8rem; margin-top: 6px; }
+
+  /* TABLE HEADER */
+  .table-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.2rem; }
+  .table-title { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; }
+  .table-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .filter-select {
+    background: var(--gray); border: 1px solid #1A2535; color: var(--white);
+    padding: 0.5rem 1rem; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+    cursor: pointer; outline: none; transition: border-color 0.2s;
+  }
+  .filter-select:focus { border-color: var(--accent); }
+  .filter-select option { background: var(--black); }
+  .export-btn {
+    background: #1E6FBF; color: var(--white); border: none;
+    padding: 0.5rem 1.2rem; border-radius: 50px; font-family: 'DM Sans', sans-serif;
+    font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: background 0.2s;
+  }
+  .export-btn:hover { background: #1A5EA0; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; border-radius: 20px; border: 1px solid #1A2535; }
+  table { width: 100%; border-collapse: collapse; min-width: 560px; }
+  thead { background: var(--gray2); border-bottom: 1px solid #1A2535; }
+  th { padding: 1rem 1.2rem; text-align: left; font-size: 0.75rem; font-weight: 700; color: var(--gray3); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+  td { padding: 1rem 1.2rem; font-size: 0.9rem; border-top: 1px solid #1A2535; vertical-align: middle; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .badge {
+    display: inline-block; padding: 0.25rem 0.75rem; border-radius: 50px;
+    font-size: 0.75rem; font-weight: 600; white-space: nowrap;
+  }
+  .badge-pc { background: rgba(55,138,221,0.15); color: #6ab0f5; }
+  .badge-mant { background: rgba(255,214,0,0.12); color: #FFD600; }
+  .badge-imp { background: rgba(99,153,34,0.15); color: #8fc94a; }
+  .badge-ps4 { background: rgba(255,77,0,0.15); color: #ff7a45; }
+  .badge-rem { background: rgba(160,100,255,0.15); color: #c084fc; }
+  .badge-datos { background: rgba(255,100,100,0.15); color: #ff8080; }
+  .badge-otro { background: rgba(136,136,136,0.15); color: #aaa; }
+  .del-btn {
+    background: transparent; border: none; color: #444; cursor: pointer;
+    font-size: 1rem; padding: 0.3rem; transition: color 0.2s; line-height: 1;
+  }
+  .del-btn:hover { color: var(--red); }
+  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--gray3); }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+  .empty-state p { font-size: 0.95rem; line-height: 1.6; }
+
+
+  /* REVIEWS ADMIN */
+  .reviews-admin-wrap { margin-top: 3rem; }
+  .review-admin-card {
+    background: var(--gray); border: 1px solid #1A2535; border-radius: 16px;
+    padding: 1.25rem 1.5rem; display: flex; gap: 1rem; align-items: flex-start;
+    margin-bottom: 0.75rem; transition: border-color 0.2s;
+  }
+  .review-admin-card:hover { border-color: #1E4470; }
+  .rev-stars { color: #FFD600; font-size: 1rem; white-space: nowrap; }
+  .rev-stars .empty { color: #2a3a50; }
+  .rev-body { flex: 1; }
+  .rev-name { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
+  .rev-text { color: #6B82A0; font-size: 0.85rem; line-height: 1.5; margin-bottom: 4px; }
+  .rev-date { font-size: 0.75rem; color: #444; }
+  .rev-del { background: none; border: none; color: #333; cursor: pointer; font-size: 1rem; padding: 4px; transition: color 0.2s; }
+  .rev-del:hover { color: #E01020; }
+  .rev-summary {
+    display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+    background: var(--gray2); border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem;
+  }
+  .rev-avg-num { font-family: 'Syne', sans-serif; font-size: 2.5rem; font-weight: 800; color: #FFD600; line-height: 1; }
+  .rev-avg-stars { color: #FFD600; font-size: 1.2rem; }
+  .rev-avg-lbl { color: #6B82A0; font-size: 0.82rem; }
+
+  /* LOADING */
+  #loading { text-align: center; padding: 4rem 2rem; color: var(--gray3); font-size: 0.9rem; }
+
+  @media (max-width: 600px) {
+    .dash-body { padding: 1.5rem 4%; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCTaI9L4jmyNpF2aZZNIKAlHM87vDrOVdo",
+    authDomain: "ontech-py.firebaseapp.com",
+    projectId: "ontech-py",
+    storageBucket: "ontech-py.firebasestorage.app",
+    messagingSenderId: "383645705162",
+    appId: "1:383645705162:web:101225abee9ae58d9c2533"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window._db = db;
+  window._collection = collection;
+  window._addDoc = addDoc;
+  window._getDocs = getDocs;
+  window._deleteDoc = deleteDoc;
+  window._doc = doc;
+  window._query = query;
+  window._orderBy = orderBy;
+  document.dispatchEvent(new Event('firebaseReady'));
+</script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo"><span class="logo-r">ON</span><span class="logo-w">Tech</span> <span class="logo-b">PY</span></div>
+    <span class="login-badge">Panel Admin</span>
+    <h2>Acceso restringido</h2>
+    <p>Ingresá tu contraseña para ver el panel de clientes.</p>
+    <div class="login-field">
+      <label>Contraseña</label>
+      <input type="password" id="pwd-input" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <p class="login-error" id="login-error">Contraseña incorrecta. Intentá de nuevo.</p>
+    <button class="login-btn" onclick="tryLogin()">Entrar al panel →</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <nav class="dash-nav">
+    <div>
+      <span class="dash-logo"><span class="logo-r">ON</span><span class="logo-w">Tech</span> <span class="logo-b">PY</span><small>Admin</small></span>
+    </div>
+    <button class="dash-logout" onclick="logout()">Cerrar sesión</button>
+  </nav>
+
+  <div class="dash-body">
+    <div id="loading">Cargando datos...</div>
+
+    <div id="dash-content" style="display:none">
+      <div class="stats-row">
+        <div class="stat-card"><div class="num" id="s-total">0</div><div class="lbl">Visitas totales</div></div>
+        <div class="stat-card"><div class="num" id="s-today">0</div><div class="lbl">Visitas hoy</div></div>
+        <div class="stat-card"><div class="num" id="s-top">–</div><div class="lbl">Servicio más pedido</div></div>
+        <div class="stat-card"><div class="num" id="s-week">0</div><div class="lbl">Esta semana</div></div>
+        <div class="stat-card"><div class="num" id="s-rating">–</div><div class="lbl">Calificación promedio</div></div>
+      </div>
+
+      <div class="table-header">
+        <span class="table-title">Registro de clientes</span>
+        <div class="table-actions">
+          <select class="filter-select" id="filter-service" onchange="renderTable()">
+            <option value="">Todos los servicios</option>
+            <option value="Reparación de PC/Laptop">PC/Laptop</option>
+            <option value="Mantenimiento preventivo">Mantenimiento</option>
+            <option value="Impresoras">Impresoras</option>
+            <option value="PS4 / Consolas">PS4/Consolas</option>
+            <option value="Soporte técnico remoto">Remoto</option>
+            <option value="Recuperación de datos">Recuperación</option>
+            <option value="Otro / No sé todavía">Otro</option>
+          </select>
+          <button class="export-btn" onclick="exportCSV()">⬇ Exportar CSV</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nombre</th>
+              <th>Teléfono</th>
+              <th>Servicio</th>
+              <th>Fecha y hora</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="visitors-tbody"></tbody>
+        </table>
+        <div id="empty-state" class="empty-state" style="display:none">
+          <span class="icon">📋</span>
+          <p>No hay visitas registradas todavía.<br>Aparecerán aquí cuando los clientes ingresen al sitio.</p>
+        </div>
+      </div>
+
+      <!-- REVIEWS SECTION -->
+      <div class="reviews-admin-wrap" id="reviews-admin-wrap" style="display:none">
+        <div class="table-header" style="margin-top:1rem">
+          <span class="table-title">Reseñas de clientes</span>
+          <div class="table-actions">
+            <button class="export-btn" onclick="exportReviewsCSV()">⬇ Exportar reseñas</button>
+          </div>
+        </div>
+        <div class="rev-summary" id="rev-summary" style="display:none">
+          <div>
+            <div class="rev-avg-num" id="rev-avg-num">5.0</div>
+            <div class="rev-avg-stars" id="rev-avg-stars">★★★★★</div>
+            <div class="rev-avg-lbl" id="rev-avg-lbl">0 reseñas</div>
+          </div>
+        </div>
+        <div id="reviews-admin-list"></div>
+        <div id="no-reviews-admin" class="empty-state" style="display:none">
+          <span class="icon">⭐</span>
+          <p>Todavía no hay reseñas de clientes.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const ADMIN_PASSWORD = 'OntechPY123';
+const STORAGE_KEY = 'ontech_visitors';
+let allVisitors = [];
+
+function tryLogin() {
+  const pwd = document.getElementById('pwd-input').value;
+  const err = document.getElementById('login-error');
+  if (pwd === ADMIN_PASSWORD) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').classList.add('visible');
+    loadData();
+  } else {
+    err.style.display = 'block';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const ls = document.getElementById('login-screen');
+    if (ls.style.display !== 'none') tryLogin();
+  }
+});
+
+function logout() {
+  document.getElementById('login-screen').style.display = '';
+  document.getElementById('dashboard').classList.remove('visible');
+  document.getElementById('pwd-input').value = '';
+  document.getElementById('login-error').style.display = 'none';
+}
+
+document.addEventListener('firebaseReady', () => { window._fbReady = true; });
+
+async function loadData() {
+  try {
+    const res = {value: localStorage.getItem(STORAGE_KEY)};
+    allVisitors = (res && res.value) ? JSON.parse(res.value) : [];
+  } catch(e) { allVisitors = []; }
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('dash-content').style.display = 'block';
+  updateStats();
+  renderTable();
+  loadReviewsAdmin();
+}
+
+let allReviews = [];
+function loadReviewsAdmin() {
+  try {
+    const r = {value: localStorage.getItem('ontech_reviews')};
+    allReviews = (r && r.value) ? JSON.parse(r.value) : [];
+  } catch(e) { allReviews = []; }
+  document.getElementById('reviews-admin-wrap').style.display = 'block';
+  const avgEl = document.getElementById('s-rating');
+  if(avgEl && allReviews.length>0) avgEl.textContent = (allReviews.reduce((s,r)=>s+r.stars,0)/allReviews.length).toFixed(1)+'★';
+  renderReviewsAdmin();
+}
+
+function renderReviewsAdmin() {
+  const list = document.getElementById('reviews-admin-list');
+  const noRev = document.getElementById('no-reviews-admin');
+  const summary = document.getElementById('rev-summary');
+  if (allReviews.length === 0) { noRev.style.display = 'block'; summary.style.display = 'none'; list.innerHTML=''; return; }
+  noRev.style.display = 'none';
+  summary.style.display = 'flex';
+  const avg = (allReviews.reduce((s,r)=>s+r.stars,0)/allReviews.length).toFixed(1);
+  document.getElementById('rev-avg-num').textContent = avg;
+  document.getElementById('rev-avg-stars').textContent = '★'.repeat(Math.round(avg)) + '☆'.repeat(5-Math.round(avg));
+  document.getElementById('rev-avg-lbl').textContent = allReviews.length + ' reseña' + (allReviews.length!==1?'s':'');
+  list.innerHTML = allReviews.map(r =>
+    '<div class="review-admin-card">' +
+    '<div class="rev-stars">' + '★'.repeat(r.stars) + '<span class="empty">' + '★'.repeat(5-r.stars) + '</span></div>' +
+    '<div class="rev-body">' +
+      '<div class="rev-name">' + escHtml(r.name||'Anónimo') + '</div>' +
+      '<div class="rev-text">"' + escHtml(r.text||'') + '"</div>' +
+      '<div class="rev-date">' + escHtml(r.date||'') + '</div>' +
+    '</div>' +
+    '<button class="rev-del" onclick="deleteReview(' + r.id + ')" title="Eliminar">✕</button>' +
+    '</div>'
+  ).join('');
+}
+
+async function deleteReview(id) {
+  if (!confirm('¿Eliminar esta reseña?')) return;
+  const review = allReviews.find(r => r.id === id);
+  allReviews = allReviews.filter(r => r.id !== id);
+  try {
+    if (window._db && review && review._docId) {
+      await window._deleteDoc(window._doc(window._db, 'reviews', review._docId));
+    } else {
+      localStorage.setItem('ontech_reviews', JSON.stringify(allReviews));
+    }
+  } catch(e){}
+  renderReviewsAdmin();
+}
+
+function exportReviewsCSV() {
+  if (allReviews.length === 0) { alert('No hay reseñas para exportar.'); return; }
+  const rows = allReviews.map(r => [r.stars, '"'+escHtml(r.name||'').replace(/"/g,'""')+'"', '"'+(r.text||'').replace(/"/g,'""')+'"', '"'+(r.date||'')+'"'].join(','));
+  const csv = ['Estrellas,Nombre,Reseña,Fecha', ...rows].join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'ontech-resenas.csv'; a.click();
+}
+
+function updateStats() {
+  document.getElementById('s-total').textContent = allVisitors.length;
+
+  const todayStr = new Date().toLocaleDateString('es-PY');
+  const todayCount = allVisitors.filter(v => v.date && v.date.startsWith(todayStr.split('/').join('/'))).length;
+  const today2 = new Date().toLocaleDateString('es-PY', {day:'2-digit',month:'2-digit',year:'numeric'});
+  const todayCount2 = allVisitors.filter(v => v.date && v.date.includes(today2)).length;
+  document.getElementById('s-today').textContent = Math.max(todayCount, todayCount2);
+
+  const weekAgo = Date.now() - 7*24*60*60*1000;
+  const weekCount = allVisitors.filter(v => v.id && v.id > weekAgo).length;
+  document.getElementById('s-week').textContent = weekCount;
+
+  if (allVisitors.length > 0) {
+    const freq = {};
+    allVisitors.forEach(v => { if(v.service) freq[v.service] = (freq[v.service]||0)+1; });
+    const top = Object.entries(freq).sort((a,b)=>b[1]-a[1])[0];
+    const shortNames = {
+      'Reparación de PC/Laptop':'PC/Laptop',
+      'Mantenimiento preventivo':'Mantenimiento',
+      'Impresoras':'Impresoras',
+      'PS4 / Consolas':'PS4',
+      'Soporte técnico remoto':'Remoto',
+      'Recuperación de datos':'Recuperación',
+      'Otro / No sé todavía':'Otro'
+    };
+    document.getElementById('s-top').textContent = top ? (shortNames[top[0]] || top[0]) : '–';
+  }
+}
+
+function getBadgeClass(service) {
+  if (!service) return 'badge-otro';
+  if (service.includes('PC') || service.includes('Laptop')) return 'badge-pc';
+  if (service.includes('Mantenimiento')) return 'badge-mant';
+  if (service.includes('Impresora')) return 'badge-imp';
+  if (service.includes('PS4') || service.includes('Consola')) return 'badge-ps4';
+  if (service.includes('remoto')) return 'badge-rem';
+  if (service.includes('datos')) return 'badge-datos';
+  return 'badge-otro';
+}
+
+function renderTable() {
+  const filter = document.getElementById('filter-service').value;
+  const filtered = filter ? allVisitors.filter(v => v.service === filter) : allVisitors;
+  const tbody = document.getElementById('visitors-tbody');
+  const empty = document.getElementById('empty-state');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = filtered.map((v, i) => `
+    <tr>
+      <td style="color:var(--gray3);font-size:0.8rem">${filtered.length - i}</td>
+      <td style="font-weight:600">${escHtml(v.name || '–')}</td>
+      <td style="color:var(--gray3)">${escHtml(v.phone || '–')}</td>
+      <td><span class="badge ${getBadgeClass(v.service)}">${escHtml(v.service || '–')}</span></td>
+      <td style="color:var(--gray3);font-size:0.82rem;white-space:nowrap">${escHtml(v.date || '–')}</td>
+      <td><button class="del-btn" onclick="deleteVisitor(${v.id})" title="Eliminar">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function deleteVisitor(id) {
+  if (!confirm('¿Eliminar este registro?')) return;
+  const visitor = allVisitors.find(v => v.id === id);
+  allVisitors = allVisitors.filter(v => v.id !== id);
+  try {
+    if (window._db && visitor && visitor._docId) {
+      await window._deleteDoc(window._doc(window._db, 'visitors', visitor._docId));
+    } else {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(allVisitors));
+    }
+  } catch(e) {}
+  updateStats();
+  renderTable();
+}
+
+function exportCSV() {
+  if (allVisitors.length === 0) { alert('No hay datos para exportar.'); return; }
+  const headers = ['#','Nombre','Teléfono','Servicio','Fecha y hora'];
+  const rows = allVisitors.map((v, i) => [
+    allVisitors.length - i,
+    '"' + (v.name||'').replace(/"/g,'""') + '"',
+    '"' + (v.phone||'').replace(/"/g,'""') + '"',
+    '"' + (v.service||'').replace(/"/g,'""') + '"',
+    '"' + (v.date||'').replace(/"/g,'""') + '"'
+  ]);
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'ontech-clientes.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
